@@ -41,16 +41,6 @@ For details, see: https://pypi.org/project/cyclonedds/#installing-with-pre-built
 
 # Usage
 The Python sdk interface maintains consistency with the pnd_sdk interface, achieving robot status acquisition and control through request-response or topic subscription/publishing. Example programs are located in the `/example` directory. Before running the examples, configure the robot's network connection as per the instructions in the document at https://wiki.pndbotics.com
-## DDS Communication
-In the terminal, execute:
-```bash
-python3 ./example/helloworld/publisher.py
-```
-Open a new terminal and execute:
-```bash
-python3 ./example/helloworld/subscriber.py
-```
-You will see the data output in the terminal. The data structure transmitted between `publisher.py` and `subscriber.py` is defined in `user_data.py`, and users can define the required data structure as needed.
 ### Low-Level Example
 Execute the following command in the terminal:
 ```bash
