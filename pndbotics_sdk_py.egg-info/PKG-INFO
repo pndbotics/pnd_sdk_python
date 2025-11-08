@@ -1,15 +1,16 @@
 Metadata-Version: 2.1
-Name: pndbotics-sdk-py
+Name: pndbotics_sdk_py
 Version: 1.0.1
 Summary: PND robot sdk version 2 for python
-Home-page: UNKNOWN
 Author: PNDRobotics
 Author-email: peter.cui@pndbotics.com
 License: BSD-3-Clause
 Project-URL: Source Code, https://gitlab.pndbotics.com/pnd_group/pnd_sdk_python.git
-Platform: UNKNOWN
 Requires-Python: >=3.8
 Description-Content-Type: text/markdown
+Requires-Dist: cyclonedds==0.10.2
+Requires-Dist: numpy
+Requires-Dist: opencv-python
 
 # pnd_sdk_python
 Python interface for pnd sdk
@@ -53,7 +54,7 @@ pip3 install -e .
 For details, see: https://pypi.org/project/cyclonedds/#installing-with-pre-built-binaries
 
 # Usage
-The Python sdk2 interface maintains consistency with the pnd_sdk interface, achieving robot status acquisition and control through request-response or topic subscription/publishing. 
+The Python sdk interface maintains consistency with the pnd_sdk interface, achieving robot status acquisition and control through request-response or topic subscription/publishing. Example programs are located in the `/example` directory. Before running the examples, configure the robot's network connection as per the instructions in the document at https://wiki.pndbotics.com
 ## DDS Communication
 In the terminal, execute:
 ```bash
@@ -69,6 +70,4 @@ Execute the following command in the terminal:
 ```bash
 python3 ./example/adam_u/low_level/adam_u_low_level_example.py
 ```
-
-
 
