@@ -25,8 +25,7 @@ def adam_u_msg_dds__LowState_():
     return ADAMLowState_([adam_u_msg_dds__MotorState_() for i in range(19)], 0)
 
 def adam_u_msg_dds__HandCmd_():
-    return ADAMHandCmd_([adam_u_msg_dds__MotorCmd_() for i in range(7)], [0, 0, 0, 0])
+    return ADAMHandCmd_([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 0)
 
 def adam_u_msg_dds__HandState_():
-    return ADAMHandState_([adam_u_msg_dds__MotorState_() for i in range(7)], 
-                         0.0, 0.0, 0.0, 0.0, [0, 0], [0, 0])
+    return ADAMHandState_([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 0)
