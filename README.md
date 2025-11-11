@@ -13,7 +13,7 @@ Execute the following commands in the terminal:
 ```bash
 cd ~
 sudo apt install python3-pip
-git clone https://gitlab.pndbotics.com/pnd_group/pnd_sdk_python.git
+git clone https://github.com/pndbotics/pnd_sdk_python.git
 cd pnd_sdk_python
 pip3 install -e .
 ```
