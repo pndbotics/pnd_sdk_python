@@ -44,6 +44,7 @@ The Python sdk interface maintains consistency with the pnd_sdk interface, achie
 ### Low-Level Example
 Execute the following command in the terminal:
 ```bash
-python3 ./example/adam_u/low_level/adam_u_low_level_example.py
+cd ~/example/adam_u/low_level
+python3 adam_u_low_level_example.py
 ```
 
