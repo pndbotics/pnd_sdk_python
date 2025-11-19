@@ -90,7 +90,6 @@ class Custom:
                 self.low_cmd.motor_cmd[i].dq = 0. 
 
         elif self.time_ < self.duration_ * 2 :
-            # [Stage 2]: swing ankle using PR mode
             max_P = np.pi * 30.0 / 180.0
             max_R = np.pi * 10.0 / 180.0
             t = self.time_ - self.duration_
@@ -106,7 +105,6 @@ class Custom:
             self.low_cmd.motor_cmd[ADAMUJointIndex.wristRollRight].q = WRR_des
 
         else :
-            # [Stage 3]: swing ankle using AB mode
             max_A = np.pi * 30.0 / 180.0
             max_B = np.pi * 10.0 / 180.0
             t = self.time_ - self.duration_ * 2
