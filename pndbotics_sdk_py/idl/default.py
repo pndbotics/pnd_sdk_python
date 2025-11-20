@@ -15,7 +15,7 @@ def adam_u_msg_dds__MotorCmd_():
     return ADAMMotorCmd_(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
 
 def adam_u_msg_dds__MotorState_():
-    return ADAMMotorState_(0, 0, 0, 0, 0, 0)
+    return ADAMMotorState_(0, 0.0, 0.0, 0.0, 0, 0)
 
 
 def adam_u_msg_dds__LowCmd_():

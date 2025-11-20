@@ -22,7 +22,7 @@ import cyclonedds.idl.types as types
 @annotate.final
 @annotate.autoid("sequential")
 class MotorState_(idl.IdlStruct, typename="adam_u.msg.dds_.MotorState_"):
-    mode: types.char
+    mode: types.uint8
     q: types.float32
     dq: types.float32
     tau_est: types.float32

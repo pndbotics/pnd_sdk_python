@@ -6,14 +6,59 @@ from pndbotics_sdk_py.core.channel import ChannelPublisher, ChannelFactoryInitia
 from pndbotics_sdk_py.core.channel import ChannelSubscriber, ChannelFactoryInitialize
 from pndbotics_sdk_py.idl.default import adam_u_msg_dds__LowCmd_
 from pndbotics_sdk_py.idl.default import adam_u_msg_dds__LowState_
+from pndbotics_sdk_py.idl.default import adam_u_msg_dds__HandCmd_
 from pndbotics_sdk_py.idl.adam_u.msg.dds_ import LowCmd_
 from pndbotics_sdk_py.idl.adam_u.msg.dds_ import LowState_
+from pndbotics_sdk_py.idl.adam_u.msg.dds_ import HandCmd_
 from pndbotics_sdk_py.utils.thread import RecurrentThread
 
 import numpy as np
 
 ADAM_U_NUM_MOTOR = 19
+Kp = [
+    60.0,  # waistRoll (0)
+    60.0,  # waistPitch (1)
+    60.0,  # waistYaw (2)
+    9.0,   # neckYaw (3)
+    9.0,   # neckPitch (4)
+    18.0,  # shoulderPitch_Left (5)
+    9.0,   # shoulderRoll_Left (6)
+    9.0,   # shoulderYaw_Left (7)
+    9.0,   # elbow_Left (8)
+    9.0,   # wristYaw_Left (9)
+    9.0,   # wristPitch_Left (10)
+    9.0,   # wristRoll_Left (11)
+    18.0,  # shoulderPitch_Right (12)
+    9.0,   # shoulderRoll_Right (13)
+    9.0,   # shoulderYaw_Right (14)
+    9.0,   # elbow_Right (15)
+    9.0,   # wristYaw_Right (16)
+    9.0,   # wristPitch_Right (17)
+    9.0    # wristRoll_Right (18)
+]
 
+# Kd 配置数组（对应19个关节）
+Kd = [
+    1.0,   # waistRoll (0)
+    1.0,   # waistPitch (1)
+    1.0,   # waistYaw (2)
+    0.9,   # neckYaw (3)
+    0.9,   # neckPitch (4)
+    0.9,   # shoulderPitch_Left (5)
+    0.9,   # shoulderRoll_Left (6)
+    0.9,   # shoulderYaw_Left (7)
+    0.9,   # elbow_Left (8)
+    0.9,   # wristYaw_Left (9)
+    0.9,   # wristPitch_Left (10)
+    0.9,   # wristRoll_Left (11)
+    0.9,   # shoulderPitch_Right (12)
+    0.9,   # shoulderRoll_Right (13)
+    0.9,   # shoulderYaw_Right (14)
+    0.9,   # elbow_Right (15)
+    0.9,   # wristYaw_Right (16)
+    0.9,   # wristPitch_Right (17)
+    0.9    # wristRoll_Right (18)
+]
 class ADAMUJointIndex:
     waistRoll = 0
     waistPitch = 1
@@ -44,12 +89,14 @@ class Custom:
         self.mode_machine_ = 0
         self.low_cmd = adam_u_msg_dds__LowCmd_()  
         self.low_state = adam_u_msg_dds__LowState_() 
-        self.update_mode_machine_ = True
-
+        self.hand_cmd = adam_u_msg_dds__HandCmd_()
+        self.close_hand = np.array([500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500], dtype=int)
     def Init(self):
         self.lowcmd_publisher_ = ChannelPublisher("rt/lowcmd", LowCmd_)
         self.lowcmd_publisher_.Init()
 
+        self.hand_pub = ChannelPublisher("rt/handcmd", HandCmd_)
+        self.hand_pub.Init()
         # create subscriber # 
         self.lowstate_subscriber = ChannelSubscriber("rt/lowstate", LowState_)
         self.lowstate_subscriber.Init(self.LowStateHandler, 10)
@@ -58,23 +105,11 @@ class Custom:
         self.lowCmdWriteThreadPtr = RecurrentThread(
             interval=self.control_dt_, target=self.LowCmdWrite, name="control"
         )
-        while self.update_mode_machine_ == False:
-            time.sleep(1)
-
-        if self.update_mode_machine_ == True:
-            self.lowCmdWriteThreadPtr.Start()
+        self.lowCmdWriteThreadPtr.Start()
 
     def LowStateHandler(self, msg: LowState_):
         self.low_state = msg
-
-        if self.update_mode_machine_ == False:
-            self.mode_machine_ = self.low_state.mode_machine
-            self.update_mode_machine_ = True
-        
-        self.counter_ +=1
-        if (self.counter_ % 500 == 0) :
-            self.counter_ = 0
-            print(self.low_state.imu_state.rpy)
+        # print("Received LowState")
 
     def LowCmdWrite(self):
         self.time_ += self.control_dt_
@@ -88,6 +123,8 @@ class Custom:
                 self.low_cmd.motor_cmd[i].tau = 0. 
                 self.low_cmd.motor_cmd[i].q = (1.0 - ratio) * self.low_state.motor_state[i].q 
                 self.low_cmd.motor_cmd[i].dq = 0. 
+                self.low_cmd.motor_cmd[i].kp = Kp[i] 
+                self.low_cmd.motor_cmd[i].kd = Kd[i]
 
         elif self.time_ < self.duration_ * 2 :
             max_P = np.pi * 30.0 / 180.0
@@ -124,8 +161,10 @@ class Custom:
             R_WristYaw_des = max_WristYaw * np.sin(2.0 * np.pi * t)
             self.low_cmd.motor_cmd[ADAMUJointIndex.wristRollLeft].q = L_WristYaw_des
             self.low_cmd.motor_cmd[ADAMUJointIndex.wristRollRight].q = R_WristYaw_des
-    
-        print(self.low_cmd.motor_cmd)
+        for i in range(12):
+            self.hand_cmd.position[i] = self.close_hand[i]
+        # print(self.low_cmd.motor_cmd)
+        self.hand_pub.Write(self.hand_cmd)
         self.lowcmd_publisher_.Write(self.low_cmd)
 
 if __name__ == '__main__':
