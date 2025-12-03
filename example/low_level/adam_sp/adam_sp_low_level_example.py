@@ -4,92 +4,80 @@ import os
 
 from pndbotics_sdk_py.core.channel import ChannelPublisher, ChannelFactoryInitialize
 from pndbotics_sdk_py.core.channel import ChannelSubscriber, ChannelFactoryInitialize
-from pndbotics_sdk_py.idl.default import adam_u_msg_dds__LowCmd_
-from pndbotics_sdk_py.idl.default import adam_u_msg_dds__LowState_
-from pndbotics_sdk_py.idl.default import adam_u_msg_dds__HandCmd_
-from pndbotics_sdk_py.idl.adam_u.msg.dds_ import LowCmd_
-from pndbotics_sdk_py.idl.adam_u.msg.dds_ import LowState_
-from pndbotics_sdk_py.idl.adam_u.msg.dds_ import HandCmd_
+from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__LowCmd_
+from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__LowState_
+from pndbotics_sdk_py.idl.pnd_adam.msg.dds_ import LowCmd_
+from pndbotics_sdk_py.idl.pnd_adam.msg.dds_ import LowState_
+from pndbotics_sdk_py.idl.pnd_adam.msg.dds_ import HandCmd_
 from pndbotics_sdk_py.utils.thread import RecurrentThread
+from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__HandCmd_
 
 import numpy as np
 
-ADAM_U_NUM_MOTOR = 19
+ADAM_SP_NUM_MOTOR = 31
+ADAM_NUM_MOTOR = 25
+
 Kp = [
-    60.0,  # waistRoll (0)
-    60.0,  # waistPitch (1)
-    60.0,  # waistYaw (2)
-    9.0,   # neckYaw (3)
-    9.0,   # neckPitch (4)
-    18.0,  # shoulderPitch_Left (5)
-    9.0,   # shoulderRoll_Left (6)
-    9.0,   # shoulderYaw_Left (7)
-    9.0,   # elbow_Left (8)
-    9.0,   # wristYaw_Left (9)
-    9.0,   # wristPitch_Left (10)
-    9.0,   # wristRoll_Left (11)
-    18.0,  # shoulderPitch_Right (12)
-    9.0,   # shoulderRoll_Right (13)
-    9.0,   # shoulderYaw_Right (14)
-    9.0,   # elbow_Right (15)
-    9.0,   # wristYaw_Right (16)
-    9.0,   # wristPitch_Right (17)
-    9.0    # wristRoll_Right (18)
+    305.0, 700.0, 405.0, 305.0, 30.0, 0.0,      # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
+    305.0, 700.0, 405.0, 305.0, 30.0, 0.0,      # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
+    205.0, 405.0, 405.0,                        # Waist: waistYaw, waistRoll, waistPitch
+    18.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0,         # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
+    18.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0,
+    40,40        # Right arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
 ]
 
-# Kd 配置数组（对应19个关节）
 Kd = [
-    1.0,   # waistRoll (0)
-    1.0,   # waistPitch (1)
-    1.0,   # waistYaw (2)
-    0.9,   # neckYaw (3)
-    0.9,   # neckPitch (4)
-    0.9,   # shoulderPitch_Left (5)
-    0.9,   # shoulderRoll_Left (6)
-    0.9,   # shoulderYaw_Left (7)
-    0.9,   # elbow_Left (8)
-    0.9,   # wristYaw_Left (9)
-    0.9,   # wristPitch_Left (10)
-    0.9,   # wristRoll_Left (11)
-    0.9,   # shoulderPitch_Right (12)
-    0.9,   # shoulderRoll_Right (13)
-    0.9,   # shoulderYaw_Right (14)
-    0.9,   # elbow_Right (15)
-    0.9,   # wristYaw_Right (16)
-    0.9,   # wristPitch_Right (17)
-    0.9    # wristRoll_Right (18)
+    6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
+    6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
+    4.1, 6.1, 6.1,                       # Waist: waistYaw, waistRoll, waistPitch
+    0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,   # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
+    0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
+    1, 1  # Right arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
 ]
-class ADAMUJointIndex:
-    waistRoll = 0
-    waistPitch = 1
-    waistYaw = 2
-    neckYaw = 3
-    neckPitch = 4
-    shoulderPitchLeft = 5
-    shoulderRollLeft = 6
-    shoulderYawLeft = 7
-    elbowLeft = 8
-    wristYawLeft = 9
-    wristPitchLeft = 10
-    wristRollLeft = 11
-    shoulderPitchRight = 12
-    shoulderRollRight = 13
-    shoulderYawRight = 14
-    elbowRight = 15
-    wristYawRight = 16
-    wristPitchRight = 17
-    wristRollRight = 18
+
+class ADAMJointIndex:
+    LeftHipPitch = 0
+    LeftHipRoll = 1
+    LeftHipYaw = 2
+    LeftKnee = 3
+    LeftAnklePitch = 4
+    LeftAnkleRoll = 5
+    RightHipPitch = 6
+    RightHipRoll = 7
+    RightHipYaw = 8
+    RightKnee = 9
+    RightAnklePitch = 10
+    RightAnkleRoll = 11
+    WaistYaw = 12
+    WaistRoll = 13        
+    WaistPitch = 14       
+    LeftShoulderPitch = 15
+    LeftShoulderRoll = 16
+    LeftShoulderYaw = 17
+    LeftElbow = 18
+    LeftWristRoll = 19
+    LeftWristPitch = 20   
+    LeftWristYaw = 21     
+    RightShoulderPitch = 22
+    RightShoulderRoll = 23
+    RightShoulderYaw = 24
+    RightElbow = 25
+    RightWristRoll = 26
+    RightWristPitch = 27  
+    RightWristYaw = 28    
+
+
 
 class Custom:
     def __init__(self):
         self.time_ = 0.0
-        self.control_dt_ = 0.002  # [2ms]
+        self.control_dt_ = 0.0025  # [2ms]
         self.duration_ = 3.0    # [3 s]
         self.counter_ = 0
-        self.mode_machine_ = 0
-        self.low_cmd = adam_u_msg_dds__LowCmd_(ADAM_U_NUM_MOTOR)  
-        self.low_state = adam_u_msg_dds__LowState_(ADAM_U_NUM_MOTOR) 
-        self.hand_cmd = adam_u_msg_dds__HandCmd_()
+        self.low_cmd = pnd_adam_msg_dds__LowCmd_(ADAM_SP_NUM_MOTOR)  
+        self.low_state = pnd_adam_msg_dds__LowState_(ADAM_SP_NUM_MOTOR)
+
+        self.hand_cmd = pnd_adam_msg_dds__HandCmd_()
         self.close_hand = np.array([500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500], dtype=int)
         self.getstate_flag = False
     def Init(self):
@@ -98,7 +86,6 @@ class Custom:
 
         self.hand_pub = ChannelPublisher("rt/handcmd", HandCmd_)
         self.hand_pub.Init()
-
         # create subscriber # 
         self.lowstate_subscriber = ChannelSubscriber("rt/lowstate", LowState_)
         self.lowstate_subscriber.Init(self.LowStateHandler, 10)
@@ -110,9 +97,14 @@ class Custom:
         self.lowCmdWriteThreadPtr.Start()
 
     def LowStateHandler(self, msg: LowState_):
-        self.getstate_flag = True
         self.low_state = msg
-        # print("Received LowState")
+        self.getstate_flag = True
+        
+        self.counter_ +=1
+        if (self.counter_ % 500 == 0) :
+            self.counter_ = 0
+            print(self.low_state.imu_state.ypr)
+
 
     def LowCmdWrite(self):
         if(self.getstate_flag):
@@ -120,14 +112,27 @@ class Custom:
 
             if self.time_ < self.duration_ :
                 # [Stage 1]: set robot to zero posture
-                for i in range(ADAM_U_NUM_MOTOR):
+                for i in range(ADAM_SP_NUM_MOTOR):
                     ratio = np.clip(self.time_ / self.duration_, 0.0, 1.0)
                     self.low_cmd.motor_cmd[i].mode =  1 # 1:Enable, 0:Disable
                     self.low_cmd.motor_cmd[i].tau = 0. 
                     self.low_cmd.motor_cmd[i].q = (1.0 - ratio) * self.low_state.motor_state[i].q 
                     self.low_cmd.motor_cmd[i].dq = 0. 
                     self.low_cmd.motor_cmd[i].kp = Kp[i] 
-                    self.low_cmd.motor_cmd[i].kd = Kd[i]
+                    self.low_cmd.motor_cmd[i].kd = Kd[i] 
+                for i in range(12):
+                    self.hand_cmd.position[i] = self.close_hand[i]
+                self.hand_pub.Write(self.hand_cmd)
+                self.lowcmd_publisher_.Write(self.low_cmd)
+            else:
+                # maintain the 0 pos
+                for i in range(ADAM_SP_NUM_MOTOR):
+                    self.low_cmd.motor_cmd[i].mode =  1 # 1:Enable, 0:Disable
+                    self.low_cmd.motor_cmd[i].tau = 0. 
+                    self.low_cmd.motor_cmd[i].q = 0
+                    self.low_cmd.motor_cmd[i].dq = 0. 
+                    self.low_cmd.motor_cmd[i].kp = Kp[i] 
+                    self.low_cmd.motor_cmd[i].kd = Kd[i] 
                 for i in range(12):
                     self.hand_cmd.position[i] = self.close_hand[i]
                 self.hand_pub.Write(self.hand_cmd)

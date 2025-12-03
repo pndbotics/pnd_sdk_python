@@ -20,5 +20,5 @@ import cyclonedds.idl.types as types
 @annotate.final
 @annotate.autoid("sequential")
 class LowCmd_(idl.IdlStruct, typename="adam_u.msg.dds_.LowCmd_"):
-    motor_cmd: types.array['pndbotics_sdk_py.idl.adam_u.msg.dds_.MotorCmd_', 19]
+    motor_cmd: types.sequence['pndbotics_sdk_py.idl.adam_u.msg.dds_.MotorCmd_']
     reserve: types.uint32

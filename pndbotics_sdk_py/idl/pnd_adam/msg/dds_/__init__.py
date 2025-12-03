@@ -12,5 +12,4 @@ from ._LowCmd_ import LowCmd_
 from ._LowState_ import LowState_
 from ._MotorCmd_ import MotorCmd_
 from ._MotorState_ import MotorState_
-from ._WirelessController_ import WirelessController_
-__all__ = ["HandCmd_", "HandState_", "IMUState_", "LowCmd_", "LowState_", "MotorCmd_", "MotorState_","WirelessController_",]
+__all__ = ["HandCmd_", "HandState_", "IMUState_", "LowCmd_", "LowState_", "MotorCmd_", "MotorState_",]

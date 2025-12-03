@@ -25,7 +25,7 @@ class LowState_(idl.IdlStruct, typename="pnd_adam.msg.dds_.LowState_"):
     # tick: types.uint32
     imu_state: 'pndbotics_sdk_py.idl.pnd_adam.msg.dds_.IMUState_'
     motor_state: types.sequence['pndbotics_sdk_py.idl.pnd_adam.msg.dds_.MotorState_']
-    # wireless_remote: types.array[types.uint8, 40]
+    wireless_remote: types.array[types.uint8, 40]
     reserve: types.uint32
 
 

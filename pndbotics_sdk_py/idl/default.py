@@ -16,14 +16,16 @@ def adam_u_msg_dds__MotorCmd_():
     return ADAMMotorCmd_(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
 
 def adam_u_msg_dds__MotorState_():
-    return ADAMMotorState_(0, 0.0, 0.0, 0.0, 0, 0)
+    return ADAMMotorState_(0, 0.0, 0.0, 0.0, 0)
 
 
-def adam_u_msg_dds__LowCmd_():
-    return ADAMLowCmd_([adam_u_msg_dds__MotorCmd_() for i in range(19)], 0)
+def adam_u_msg_dds__LowCmd_(num):
+    return ADAMLowCmd_([adam_u_msg_dds__MotorCmd_() for i in range(num)], 0)
 
-def adam_u_msg_dds__LowState_():
-    return ADAMLowState_([adam_u_msg_dds__MotorState_() for i in range(19)], 0)
+def adam_u_msg_dds__LowState_(num):
+    return ADAMLowState_([adam_u_msg_dds__MotorState_() for i in range(num)],
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+                     0)
 
 def adam_u_msg_dds__HandCmd_():
     return ADAMHandCmd_([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 0)
@@ -37,41 +39,25 @@ def adam_u_msg_dds__HandState_():
 """
 " std_msgs.msg.dds_ dafault
 """
-def pnd_adam_msg_dds__WirelessController_():
-    return WirelessController_(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
-
 def pnd_adam_msg_dds__IMUState_():
-    return  IMUState_([0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], 0.0)
+    return IMUState_([0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], 0)
 
 def pnd_adam_msg_dds__MotorCmd_():
     return MotorCmd_(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0)
 
 def pnd_adam_msg_dds__MotorState_():
-    return MotorState_(0, 0.0, 0.0, 0.0, 0.0, 0, 0)
-
-
-# def pnd_adam_msg_dds__LowCmd_():
-#     return LowCmd_([pnd_adam_msg_dds__MotorCmd_() for i in range(35)], 0)
+    return MotorState_(0, 0.0, 0.0, 0.0, 0)
 
 def pnd_adam_msg_dds__LowCmd_(num):
     # 使用空的 sequence 初始化 motor_cmd
     return LowCmd_([pnd_adam_msg_dds__MotorCmd_() for i in range(num)], 0)
 
-# def pnd_adam_msg_dds__LowState_():
-#     return LowState_(0, pnd_adam_msg_dds__IMUState_(),
-#                 [pnd_adam_msg_dds__MotorState_() for i in range(35)],
-#                 0)
 
 def pnd_adam_msg_dds__LowState_(num):
     # 使用空的 sequence 初始化 motor_cmd
-    return LowState_(pnd_adam_msg_dds__IMUState_(), [pnd_adam_msg_dds__MotorState_() for i in range(num)], 0)
-    # return LowState_([pnd_adam_msg_dds__MotorState_() for i in range(num)], 0)
-
-# def pnd_adam_msg_dds__LowState_():
-#     return LowState_(0, pnd_adam_msg_dds__IMUState_(),
-#                 [pnd_adam_msg_dds__MotorState_() for i in range(35)],
-#                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#                 0)
+    return LowState_(pnd_adam_msg_dds__IMUState_(), [pnd_adam_msg_dds__MotorState_() for i in range(num)], 
+                    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+                     0)
 
 def pnd_adam_msg_dds__HandCmd_():
     return HandCmd_([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 0)

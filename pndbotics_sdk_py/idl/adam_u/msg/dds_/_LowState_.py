@@ -22,7 +22,8 @@ import cyclonedds.idl.types as types
 @annotate.final
 @annotate.autoid("sequential")
 class LowState_(idl.IdlStruct, typename="adam_u.msg.dds_.LowState_"):
-    motor_state: types.array['pndbotics_sdk_py.idl.adam_u.msg.dds_.MotorState_', 19]
+    motor_state: types.sequence['pndbotics_sdk_py.idl.adam_u.msg.dds_.MotorState_']
+    wireless_remote: types.array[types.uint8, 40]
     reserve: types.uint32
 
 
