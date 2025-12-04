@@ -68,7 +68,8 @@ Kp = [
     10.0,
     10.0,
     10.0,
-
+    50,
+    50
 ]
 
 Kd = [
@@ -105,7 +106,8 @@ Kd = [
     0.04545455,
     0.04545455,
     0.04545455,
-
+    2.5,
+    2.5
 ]
 
 class ADAMJointIndex:
@@ -140,12 +142,11 @@ class ADAMJointIndex:
     RightWristYaw = 28    
 
 
-
 class Custom:
     def __init__(self):
         self.time_ = 0.0
         self.control_dt_ = 0.0025  # [2ms]
-        self.duration_ = 3.0    # [3 s]
+        self.duration_ = 100.0    # [3 s]
         self.counter_ = 0
         self.low_cmd = pnd_adam_msg_dds__LowCmd_(ADAM_SP_NUM_MOTOR)  
         self.low_state = pnd_adam_msg_dds__LowState_(ADAM_SP_NUM_MOTOR)
