@@ -15,24 +15,97 @@ from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__HandCmd_
 import numpy as np
 
 ADAM_SP_NUM_MOTOR = 31
-ADAM_NUM_MOTOR = 25
+
+# Kp = [
+#     305.0, 700.0, 405.0, 305.0, 30.0, 0.0,      # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
+#     305.0, 700.0, 405.0, 305.0, 30.0, 0.0,      # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
+#     205.0, 405.0, 405.0,                        # Waist: waistYaw, waistRoll, waistPitch
+#     18.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0,         # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
+#     18.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0,
+#     40,40        # Right arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
+# ]
+
+# Kd = [
+#     6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
+#     6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
+#     4.1, 6.1, 6.1,                       # Waist: waistYaw, waistRoll, waistPitch
+#     0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,   # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
+#     0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
+#     1, 1  # Right arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
+# ]
 
 Kp = [
-    305.0, 700.0, 405.0, 305.0, 30.0, 0.0,      # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    305.0, 700.0, 405.0, 305.0, 30.0, 0.0,      # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    205.0, 405.0, 405.0,                        # Waist: waistYaw, waistRoll, waistPitch
-    18.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0,         # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
-    18.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0,
-    40,40        # Right arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
+    50.0,
+    23.33333333,
+    66.39344262,
+    50.0,
+    13.33333333,
+    0.0,
+
+    50.0,
+    23.33333333,
+    66.39344262,
+    50.0,
+    13.33333333,
+    0.0,
+
+    50.0,
+    66.39344262,
+    66.39344262,
+
+    20.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+
+    20.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+
 ]
 
 Kd = [
-    6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    4.1, 6.1, 6.1,                       # Waist: waistYaw, waistRoll, waistPitch
-    0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,   # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
-    0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
-    1, 1  # Right arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
+    3.8125,
+    1.46412884,
+    0.201121,
+    3.8125,
+    0.27043269,
+    0.03004808,
+
+    3.8125,
+    1.46412884,
+    0.201121,
+    3.8125,
+    0.27043269,
+    0.03004808,
+
+    0.13517969,
+    0.201121,
+    0.201121,
+
+    0.03715937,
+    0.03715937,
+    0.03476246,
+    0.03476246,
+    0.04545455,
+    0.04545455,
+    0.04545455,
+
+    0.03715937,
+    0.03715937,
+    0.04545455,
+    0.04545455,
+    0.04545455,
+    0.04545455,
+    0.04545455,
+
 ]
 
 class ADAMJointIndex:
