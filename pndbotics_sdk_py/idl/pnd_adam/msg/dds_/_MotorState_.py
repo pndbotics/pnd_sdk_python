@@ -25,5 +25,7 @@ class MotorState_(idl.IdlStruct, typename="pnd_adam.msg.dds_.MotorState_"):
     mode: types.uint8
     q: types.float32
     dq: types.float32
+    ddq: types.float32
     tau_est: types.float32
+    state: types.uint32
     reserve: types.uint32
