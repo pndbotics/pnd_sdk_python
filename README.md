@@ -117,8 +117,7 @@ Feel free to open issues or pull requests.
 
 | Version | Date       | Updates                                                                              |
 | ------- | ---------- | ------------------------------------------------------------------------------------ |
-| v1.0.3  | 2025-12-10 | - Add sp and lite </br> - Change wireless remote </br> - Add ddq and motor state
- |
+| v1.0.3  | 2025-12-10 | - Add sp and lite </br> - Change wireless remote </br> - Add ddq and motor state|
 | v1.0.2  | 2025-11-20 | Add pd and add hand in example|
 | v1.0.1  | 2025-11-11 | Add hand support|
 | v1.0.0  | 2025-11-07 | Initial release|
