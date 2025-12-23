@@ -24,7 +24,7 @@ def pnd_adam_msg_dds__LowCmd_(num):
 
 def pnd_adam_msg_dds__LowState_(num):
     # 使用空的 sequence 初始化 motor_cmd
-    return LowState_(pnd_adam_msg_dds__IMUState_(), [pnd_adam_msg_dds__MotorState_() for i in range(num)], 
+    return LowState_(0, pnd_adam_msg_dds__IMUState_(), [pnd_adam_msg_dds__MotorState_() for i in range(num)], 
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
                      0)
 

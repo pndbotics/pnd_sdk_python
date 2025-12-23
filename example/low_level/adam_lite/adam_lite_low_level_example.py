@@ -6,33 +6,13 @@ from pndbotics_sdk_py.core.channel import ChannelPublisher, ChannelFactoryInitia
 from pndbotics_sdk_py.core.channel import ChannelSubscriber, ChannelFactoryInitialize
 from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__LowCmd_
 from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__LowState_
-from pndbotics_sdk_py.idl.pnd_adam.msg.dds_ import HandState_
 from pndbotics_sdk_py.idl.pnd_adam.msg.dds_ import LowCmd_
 from pndbotics_sdk_py.idl.pnd_adam.msg.dds_ import LowState_
-from pndbotics_sdk_py.idl.pnd_adam.msg.dds_ import HandCmd_
 from pndbotics_sdk_py.utils.thread import RecurrentThread
-from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__HandCmd_
 
 import numpy as np
 
-ADAM_NUM_MOTOR = 25
-
-# Kp = [
-#     305.0, 700.0, 405.0, 305.0, 20.0, 0.0,      # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-#     305.0, 700.0, 405.0, 305.0, 20.0, 0.0,      # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-#     205.0, 405.0, 405.0,                        # Waist: waistYaw, waistRoll, waistPitch
-#     18.0, 9.0, 9.0, 9.0, 9.0,                   # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw
-#     18.0, 9.0, 9.0, 9.0, 9.0                    # Right arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw
-# ]
-
-
-# Kd = [
-#     6.1, 30.0, 6.1, 6.1, 2.5, 0.35,     # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-#     6.1, 30.0, 6.1, 6.1, 2.5, 0.35,     # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-#     4.1, 6.1, 6.1,                       # Waist: waistYaw, waistRoll, waistPitch
-#     0.9, 0.9, 0.9, 0.9, 0.9,             # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw
-#     0.9, 0.9, 0.9, 0.9, 0.9              # Right arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw
-# ]
+ADAM_NUM_MOTOR = 23
 
 Kp = [
     305.0, 700.0, 405.0, # hip left
@@ -44,10 +24,10 @@ Kp = [
     205.0, 405.0, 405.0,  # waist
     
     18.0, 9.0, 9.0, # shoulder left
-    9.0, 9.0,  # arms
+    9.0,  # arms
 
     18.0, 9.0, 9.0, # shoulder right
-    9.0, 9.0  # arms
+    9.0 # arms
 ]
 
 Kd = [
@@ -60,10 +40,10 @@ Kd = [
     4.1, 6.1, 6.1,             # waist
     
     0.9, 0.9, 0.9,
-    0.9, 0.9,  # arms
+    0.9,  # arms
     
     0.9, 0.9, 0.9, 
-    0.9, 0.9  # arms 
+    0.9 # arms 
 ]
 
 class ADAMJointIndex:
@@ -86,12 +66,10 @@ class ADAMJointIndex:
     LeftShoulderRoll = 16
     LeftShoulderYaw = 17
     LeftElbow = 18
-    LeftWristYaw = 19     
-    RightShoulderPitch = 20
-    RightShoulderRoll = 21
-    RightShoulderYaw = 22
-    RightElbow = 23
-    RightWristYaw = 24    
+    RightShoulderPitch = 19
+    RightShoulderRoll = 20
+    RightShoulderYaw = 21
+    RightElbow = 22
 
 
 
@@ -104,15 +82,11 @@ class Custom:
         self.low_cmd = pnd_adam_msg_dds__LowCmd_(ADAM_NUM_MOTOR)  
         self.low_state = pnd_adam_msg_dds__LowState_(ADAM_NUM_MOTOR)
 
-        self.hand_cmd = pnd_adam_msg_dds__HandCmd_()
-        self.close_hand = np.array([500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500], dtype=int)
         self.getstate_flag = False
     def Init(self):
         self.lowcmd_publisher_ = ChannelPublisher("rt/lowcmd", LowCmd_)
         self.lowcmd_publisher_.Init()
 
-        self.hand_pub = ChannelPublisher("rt/handcmd", HandCmd_)
-        self.hand_pub.Init()
         # create subscriber # 
         self.lowstate_subscriber = ChannelSubscriber("rt/lowstate", LowState_)
         self.lowstate_subscriber.Init(self.LowStateHandler, 10)
@@ -146,63 +120,23 @@ class Custom:
                     self.low_cmd.motor_cmd[i].q = (1.0 - ratio) * self.low_state.motor_state[i].q 
                     self.low_cmd.motor_cmd[i].dq = 0. 
                     self.low_cmd.motor_cmd[i].kp = Kp[i] 
-                    self.low_cmd.motor_cmd[i].kd = Kd[i] 
-            else:
-                # maintain the 0 pos
-                for i in range(ADAM_NUM_MOTOR):
-                    print("low kp kp:",self.low_cmd.motor_cmd[i].kp)
-                    print("low kp kd:",self.low_cmd.motor_cmd[i].kd)
-                    self.low_cmd.motor_cmd[i].mode =  1 # 1:Enable, 0:Disable
-                    self.low_cmd.motor_cmd[i].tau = 0. 
-                    self.low_cmd.motor_cmd[i].q = 0
-                    self.low_cmd.motor_cmd[i].dq = 0. 
-                    self.low_cmd.motor_cmd[i].kp = Kp[i] 
-                    self.low_cmd.motor_cmd[i].kd = Kd[i] 
-                    
-            for i in range(12):
-                self.hand_cmd.position[i] = self.close_hand[i]
-            self.hand_pub.Write(self.hand_cmd)
+                    self.low_cmd.motor_cmd[i].kd = Kd[i]
+
+            elif self.time_ < self.duration_ * 2 :
+                max_P = np.pi * 30.0 / 180.0
+                max_R = np.pi * 10.0 / 180.0
+                t = self.time_ - self.duration_
+                L_P_des = max_P * np.sin(2.0 * np.pi * t)
+                L_R_des = max_R * np.sin(2.0 * np.pi * t)
+                R_P_des = max_P * np.sin(2.0 * np.pi * t)
+                R_R_des = -max_R * np.sin(2.0 * np.pi * t)
+
+                self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnklePitch].q = L_P_des
+                self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnkleRoll].q = L_R_des
+                self.low_cmd.motor_cmd[ADAMJointIndex.RightAnklePitch].q = R_P_des
+                self.low_cmd.motor_cmd[ADAMJointIndex.RightAnkleRoll].q = R_R_des
+
             self.lowcmd_publisher_.Write(self.low_cmd)
-
-        else:
-            print("Waiting for LowState...")
-            # elif self.time_ < self.duration_ * 2 :
-            #     # [Stage 2]: swing ankle using PR mode
-            #     max_P = np.pi * 30.0 / 180.0
-            #     max_R = np.pi * 10.0 / 180.0
-            #     t = self.time_ - self.duration_
-            #     L_P_des = max_P * np.sin(2.0 * np.pi * t)
-            #     L_R_des = max_R * np.sin(2.0 * np.pi * t)
-            #     R_P_des = max_P * np.sin(2.0 * np.pi * t)
-            #     R_R_des = -max_R * np.sin(2.0 * np.pi * t)
-
-            #     self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnklePitch].q = L_P_des
-            #     self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnkleRoll].q = L_R_des
-            #     self.low_cmd.motor_cmd[ADAMJointIndex.RightAnklePitch].q = R_P_des
-            #     self.low_cmd.motor_cmd[ADAMJointIndex.RightAnkleRoll].q = R_R_des
-
-            # else :
-            #     # [Stage 3]: swing ankle using AB mode
-            #     max_A = np.pi * 30.0 / 180.0
-            #     max_B = np.pi * 10.0 / 180.0
-            #     t = self.time_ - self.duration_ * 2
-            #     L_A_des = max_A * np.sin(2.0 * np.pi * t)
-            #     L_B_des = max_B * np.sin(2.0 * np.pi * t + np.pi)
-            #     R_A_des = -max_A * np.sin(2.0 * np.pi * t)
-            #     R_B_des = -max_B * np.sin(2.0 * np.pi * t + np.pi)
-
-            #     self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnkleA].q = L_A_des
-            #     self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnkleB].q = L_B_des
-            #     self.low_cmd.motor_cmd[ADAMJointIndex.RightAnkleA].q = R_A_des
-            #     self.low_cmd.motor_cmd[ADAMJointIndex.RightAnkleB].q = R_B_des
-                
-            #     max_WristYaw = np.pi * 30.0 / 180.0
-            #     L_WristYaw_des = max_WristYaw * np.sin(2.0 * np.pi * t)
-            #     R_WristYaw_des = max_WristYaw * np.sin(2.0 * np.pi * t)
-            #     self.low_cmd.motor_cmd[ADAMJointIndex.LeftWristRoll].q = L_WristYaw_des
-            #     self.low_cmd.motor_cmd[ADAMJointIndex.RightWristRoll].q = R_WristYaw_des
-
-    
 
 if __name__ == '__main__':
 
@@ -212,7 +146,7 @@ if __name__ == '__main__':
     if len(sys.argv)>1:
         ChannelFactoryInitialize(1, sys.argv[1])  # Use domain ID 1 instead of 0
     else:
-        ChannelFactoryInitialize(1)  # Use domain ID 1 instead of 0
+        ChannelFactoryInitialize(1,"lo")  # Use domain ID 1 instead of 0
 
     custom = Custom()
     custom.Init()
