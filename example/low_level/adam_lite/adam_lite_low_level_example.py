@@ -99,8 +99,6 @@ class Custom:
 
     def LowStateHandler(self, msg: LowState_):
         self.low_state = msg
-        self.getstate_flag = True
-        
         self.counter_ +=1
         if (self.counter_ % 500 == 0) :
             self.counter_ = 0
@@ -108,35 +106,34 @@ class Custom:
 
 
     def LowCmdWrite(self):
-        if(self.getstate_flag):
-            self.time_ += self.control_dt_
+        self.time_ += self.control_dt_
 
-            if self.time_ < self.duration_ :
-                # [Stage 1]: set robot to zero posture
-                for i in range(ADAM_NUM_MOTOR):
-                    ratio = np.clip(self.time_ / self.duration_, 0.0, 1.0)
-                    self.low_cmd.motor_cmd[i].mode =  1 # 1:Enable, 0:Disable
-                    self.low_cmd.motor_cmd[i].tau = 0. 
-                    self.low_cmd.motor_cmd[i].q = (1.0 - ratio) * self.low_state.motor_state[i].q 
-                    self.low_cmd.motor_cmd[i].dq = 0. 
-                    self.low_cmd.motor_cmd[i].kp = Kp[i] 
-                    self.low_cmd.motor_cmd[i].kd = Kd[i]
+        if self.time_ < self.duration_ :
+            # [Stage 1]: set robot to zero posture
+            for i in range(ADAM_NUM_MOTOR):
+                ratio = np.clip(self.time_ / self.duration_, 0.0, 1.0)
+                self.low_cmd.motor_cmd[i].mode =  1 # 1:Enable, 0:Disable
+                self.low_cmd.motor_cmd[i].tau = 0. 
+                self.low_cmd.motor_cmd[i].q = (1.0 - ratio) * self.low_state.motor_state[i].q 
+                self.low_cmd.motor_cmd[i].dq = 0. 
+                self.low_cmd.motor_cmd[i].kp = Kp[i] 
+                self.low_cmd.motor_cmd[i].kd = Kd[i]
 
-            elif self.time_ < self.duration_ * 2 :
-                max_P = np.pi * 30.0 / 180.0
-                max_R = np.pi * 10.0 / 180.0
-                t = self.time_ - self.duration_
-                L_P_des = max_P * np.sin(2.0 * np.pi * t)
-                L_R_des = max_R * np.sin(2.0 * np.pi * t)
-                R_P_des = max_P * np.sin(2.0 * np.pi * t)
-                R_R_des = -max_R * np.sin(2.0 * np.pi * t)
+        elif self.time_ < self.duration_ * 2 :
+            max_P = np.pi * 30.0 / 180.0
+            max_R = np.pi * 10.0 / 180.0
+            t = self.time_ - self.duration_
+            L_P_des = max_P * np.sin(2.0 * np.pi * t)
+            L_R_des = max_R * np.sin(2.0 * np.pi * t)
+            R_P_des = max_P * np.sin(2.0 * np.pi * t)
+            R_R_des = -max_R * np.sin(2.0 * np.pi * t)
 
-                self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnklePitch].q = L_P_des
-                self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnkleRoll].q = L_R_des
-                self.low_cmd.motor_cmd[ADAMJointIndex.RightAnklePitch].q = R_P_des
-                self.low_cmd.motor_cmd[ADAMJointIndex.RightAnkleRoll].q = R_R_des
+            self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnklePitch].q = L_P_des
+            self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnkleRoll].q = L_R_des
+            self.low_cmd.motor_cmd[ADAMJointIndex.RightAnklePitch].q = R_P_des
+            self.low_cmd.motor_cmd[ADAMJointIndex.RightAnkleRoll].q = R_R_des
 
-            self.lowcmd_publisher_.Write(self.low_cmd)
+        self.lowcmd_publisher_.Write(self.low_cmd)
 
 if __name__ == '__main__':
 

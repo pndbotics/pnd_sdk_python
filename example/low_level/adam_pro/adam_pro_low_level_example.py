@@ -97,8 +97,6 @@ class Custom:
 
     def LowStateHandler(self, msg: LowState_):
         self.low_state = msg
-        self.getstate_flag = True
-        
         self.counter_ +=1
         if (self.counter_ % 500 == 0) :
             self.counter_ = 0
