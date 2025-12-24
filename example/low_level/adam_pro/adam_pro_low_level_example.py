@@ -102,7 +102,7 @@ class Custom:
         self.counter_ +=1
         if (self.counter_ % 500 == 0) :
             self.counter_ = 0
-            # print(self.low_state.imu_state.ypr)
+            print(self.low_state.imu_state.ypr)
 
 
     def LowCmdWrite(self):
