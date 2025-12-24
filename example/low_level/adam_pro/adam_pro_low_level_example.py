@@ -31,7 +31,7 @@ Kd = [
     4.1, 6.1, 6.1,                       # Waist: waistYaw, waistRoll, waistPitch
     0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,   # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
     0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
-    1, 1                                              # head: head_pitch, head_yaw
+    1, 1                                              # head: head_yaw, head_pitch
 ]
 
 class ADAMJointIndex:
@@ -64,6 +64,8 @@ class ADAMJointIndex:
     RightWristRoll = 26
     RightWristPitch = 27  
     RightWristYaw = 28    
+    HeadYaw = 29   
+    HeadPitch = 30   
 
 
 class Custom:
