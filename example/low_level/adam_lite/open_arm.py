@@ -2,7 +2,7 @@ import time
 import sys
 import numpy as np
 
-from pndbotics_sdk_py.core.channel import ChannelPublisher, ChannelFactoryInitialize
+from pndbotics_sdk_py.core.channel import ChannelPublisher, ChannelSubscriber, ChannelFactoryInitialize
 from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__LowCmd_
 from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__LowState_
 from pndbotics_sdk_py.idl.pnd_adam.msg.dds_ import LowCmd_
@@ -66,6 +66,16 @@ close_hand = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=int)
 dt = 0.0025
 runing_time = 0.0
 
+low_state = None
+getstate_flag = False  # 标记是否已获取到有效数据
+
+def low_state_handler(msg):
+    """订阅回调函数：接收并存储low_state数据"""
+    global low_state, getstate_flag
+    low_state = msg
+    getstate_flag = True  # 获取到数据后更新标记
+
+
 input("Press enter to start")
 
 if __name__ == '__main__':
@@ -83,6 +93,35 @@ if __name__ == '__main__':
     hand_pub = ChannelPublisher("rt/handcmd", HandCmd_)
     hand_pub.Init()
     hand_cmd = pnd_adam_msg_dds__HandCmd_()
+
+    lowstate_sub = ChannelSubscriber("rt/lowstate", LowState_)
+    lowstate_sub.Init(low_state_handler, 1)
+
+    print("等待订阅 low_state 数据...")
+    wait_interval = 0.005  # 5ms 等待间隔
+    timeout = 10.0  # 最大等待时间（秒），防止无限等待
+    start_time = time.time()
+    
+    while not getstate_flag:
+        # 检查是否超时
+        if time.time() - start_time > timeout:
+            print(f"超时！{timeout}秒内未获取到 low_state 数据")
+            sys.exit(0)
+        time.sleep(wait_interval)
+
+    # [Stage 1]: set robot to zero posture
+    duration = 2.0
+    start_time = time.time()
+    while time.time() - start_time < duration :
+        for i in range(ADAM_LITE_NUM_MOTOR):
+            ratio = np.clip((time.time() - start_time) / duration, 0.0, 1.0)
+            cmd.motor_cmd[i].mode =  1 # 1:Enable, 0:Disable
+            cmd.motor_cmd[i].tau = 0. 
+            cmd.motor_cmd[i].q = (1.0 - ratio) * low_state.motor_state[i].q 
+            cmd.motor_cmd[i].dq = 0.
+            cmd.motor_cmd[i].kp = KP_CONFIG[i]
+            cmd.motor_cmd[i].kd = KD_CONFIG[i]
+        time.sleep(wait_interval)
 
     while True:
         step_start = time.perf_counter()
