@@ -14,29 +14,29 @@ KP_CONFIG = [
     305.0, 700.0, 405.0, 305.0, 20.0, 0.0,      # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
     305.0, 700.0, 405.0, 305.0, 20.0, 0.0,      # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
     205.0, 405.0, 405.0,                        # Waist: waistYaw, waistRoll, waistPitch   
-    180.0,  # shoulderPitch_Left (15)
-    180.0,   # shoulderRoll_Left (16)
+    18.0,  # shoulderPitch_Left (15)
+    9.0,   # shoulderRoll_Left (16)
     9.0,   # shoulderYaw_Left  (17)
     9.0,   # elbow_Left  (18)  
-    180.0,  # shoulderPitch_Right  (19)
-    180.0,   # shoulderRoll_Right (20)
+    18.0,  # shoulderPitch_Right  (19)
+    9.0,   # shoulderRoll_Right (20)
     9.0,   # shoulderYaw_Right (21)
     9.0,   # elbow_Right (22)
 ]
 
 # Kd 配置数组（对应23个关节）
 KD_CONFIG = [
-    6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    3.42,   # waistYaw
-    6.75,   # waistRoll 
-    6.75,   # waistPitch          
-    1.8,   # shoulderPitch_Left 
-    1.8,   # shoulderRoll_Left 
+    6.1, 30.0, 6.1, 6.1, 2.5, 0.35,     # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
+    6.1, 30.0, 6.1, 6.1, 2.5, 0.35,     # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
+    4.1,   # waistYaw
+    6.1,   # waistRoll 
+    6.1,   # waistPitch          
+    0.9,   # shoulderPitch_Left 
+    0.9,   # shoulderRoll_Left 
     0.9,   # shoulderYaw_Left 
     0.9,   # elbow_Left 
-    1.8,   # shoulderPitch_Right 
-    1.8,   # shoulderRoll_Right 
+    0.9,   # shoulderPitch_Right 
+    0.9,   # shoulderRoll_Right 
     0.9,   # shoulderYaw_Right 
     0.9,   # elbow_Right
 ]
@@ -67,13 +67,12 @@ dt = 0.0025
 runing_time = 0.0
 
 low_state = None
-getstate_flag = False  # 标记是否已获取到有效数据
+getstate_flag = False  # flag to indicate if data is received
 
 def low_state_handler(msg):
-    """订阅回调函数：接收并存储low_state数据"""
     global low_state, getstate_flag
     low_state = msg
-    getstate_flag = True  # 获取到数据后更新标记
+    getstate_flag = True  # activate the flag when data is received
 
 
 input("Press enter to start")
@@ -97,15 +96,15 @@ if __name__ == '__main__':
     lowstate_sub = ChannelSubscriber("rt/lowstate", LowState_)
     lowstate_sub.Init(low_state_handler, 1)
 
-    print("等待订阅 low_state 数据...")
-    wait_interval = 0.005  # 5ms 等待间隔
-    timeout = 10.0  # 最大等待时间（秒），防止无限等待
+    print("waiting for low_state data...")
+    wait_interval = 0.001  # 1ms wait interval
+    timeout = 10.0  # maximum wait time (seconds) to prevent infinite waiting
     start_time = time.time()
     
     while not getstate_flag:
-        # 检查是否超时
+        # check for timeout
         if time.time() - start_time > timeout:
-            print(f"超时！{timeout}秒内未获取到 low_state 数据")
+            print(f"Time out! Failed to get low_state data in {timeout}seconds")
             sys.exit(0)
         time.sleep(wait_interval)
 
@@ -121,7 +120,9 @@ if __name__ == '__main__':
             cmd.motor_cmd[i].dq = 0.
             cmd.motor_cmd[i].kp = KP_CONFIG[i]
             cmd.motor_cmd[i].kd = KD_CONFIG[i]
+        pub.Write(cmd)
         time.sleep(wait_interval)
+    print("Back to zero posture completed. Starting open/close arm demo...")
 
     while True:
         step_start = time.perf_counter()

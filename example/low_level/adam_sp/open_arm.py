@@ -2,7 +2,7 @@ import time
 import sys
 import numpy as np
 
-from pndbotics_sdk_py.core.channel import ChannelPublisher, ChannelFactoryInitialize
+from pndbotics_sdk_py.core.channel import ChannelPublisher, ChannelSubscriber, ChannelFactoryInitialize
 from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__LowCmd_
 from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__LowState_
 from pndbotics_sdk_py.idl.pnd_adam.msg.dds_ import LowCmd_
@@ -14,15 +14,15 @@ KP_CONFIG = [
     305.0, 700.0, 405.0, 305.0, 30.0, 0.0,      # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
     305.0, 700.0, 405.0, 305.0, 30.0, 0.0,      # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
     205.0, 405.0, 405.0,                        # Waist: waistYaw, waistRoll, waistPitch   
-    180.0,  # shoulderPitch_Left (15)
-    180.0,   # shoulderRoll_Left (16)
+    18.0,  # shoulderPitch_Left (15)
+    9.0,   # shoulderRoll_Left (16)
     9.0,   # shoulderYaw_Left  (17)
     9.0,   # elbow_Left  (18)
     9.0,   # wristRoll_Left  (19)
     9.0,   # wristYaw_Left  (20)
     9.0,   # wristPitch_Left  (21)    
-    180.0,  # shoulderPitch_Right  (22)
-    180.0,   # shoulderRoll_Right (23)
+    18.0,  # shoulderPitch_Right  (22)
+    9.0,   # shoulderRoll_Right (23)
     9.0,   # shoulderYaw_Right (24)
     9.0,   # elbow_Right (25)
     9.0,   # wristRoll_Right (26)
@@ -34,18 +34,18 @@ KP_CONFIG = [
 KD_CONFIG = [
     6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
     6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    3.42,   # waistYaw
-    6.75,   # waistRoll 
-    6.75,   # waistPitch          
-    1.8,   # shoulderPitch_Left 
-    1.8,   # shoulderRoll_Left 
+    4.1,   # waistYaw
+    6.1,   # waistRoll 
+    6.1,   # waistPitch          
+    0.9,   # shoulderPitch_Left 
+    0.9,   # shoulderRoll_Left 
     0.9,   # shoulderYaw_Left 
     0.9,   # elbow_Left 
     0.9,   # wristRoll_Left 
     0.9,   # wristPitch_Left 
     0.9,   # wristYaw_Left 
-    1.8,   # shoulderPitch_Right 
-    1.8,   # shoulderRoll_Right 
+    0.9,   # shoulderPitch_Right 
+    0.9,   # shoulderRoll_Right 
     0.9,   # shoulderYaw_Right 
     0.9,   # elbow_Right
     0.9,   # wristRoll_Right 
@@ -82,6 +82,15 @@ close_hand = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=int)
 dt = 0.0025
 runing_time = 0.0
 
+low_state = None
+getstate_flag = False  # flag to indicate if data is received
+
+def low_state_handler(msg):
+    global low_state, getstate_flag
+    low_state = msg
+    getstate_flag = True  # activate the flag when data is received
+
+
 input("Press enter to start")
 
 if __name__ == '__main__':
@@ -99,6 +108,37 @@ if __name__ == '__main__':
     hand_pub = ChannelPublisher("rt/handcmd", HandCmd_)
     hand_pub.Init()
     hand_cmd = pnd_adam_msg_dds__HandCmd_()
+
+    lowstate_sub = ChannelSubscriber("rt/lowstate", LowState_)
+    lowstate_sub.Init(low_state_handler, 1)
+
+    print("waiting for low_state data...")
+    wait_interval = 0.001  # 1ms wait interval
+    timeout = 10.0  # maximum wait time (seconds) to prevent infinite waiting
+    start_time = time.time()
+    
+    while not getstate_flag:
+        # check for timeout
+        if time.time() - start_time > timeout:
+            print(f"Time out! Failed to get low_state data in {timeout}seconds")
+            sys.exit(0)
+        time.sleep(wait_interval)
+
+    # [Stage 1]: set robot to zero posture
+    duration = 2.0
+    start_time = time.time()
+    while time.time() - start_time < duration :
+        for i in range(ADAM_SP_NUM_MOTOR):
+            ratio = np.clip((time.time() - start_time) / duration, 0.0, 1.0)
+            cmd.motor_cmd[i].mode =  1 # 1:Enable, 0:Disable
+            cmd.motor_cmd[i].tau = 0. 
+            cmd.motor_cmd[i].q = (1.0 - ratio) * low_state.motor_state[i].q 
+            cmd.motor_cmd[i].dq = 0.
+            cmd.motor_cmd[i].kp = KP_CONFIG[i]
+            cmd.motor_cmd[i].kd = KD_CONFIG[i]
+        pub.Write(cmd)
+        time.sleep(wait_interval)
+    print("Back to zero posture completed. Starting open/close arm demo...")
 
     while True:
         step_start = time.perf_counter()
