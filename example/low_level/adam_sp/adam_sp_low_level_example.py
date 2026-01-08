@@ -38,13 +38,17 @@ class ADAMJointIndex:
     LeftHipYaw = 2
     LeftKnee = 3
     LeftAnklePitch = 4
+    LeftAnkleB = 4
     LeftAnkleRoll = 5
+    LeftAnkleA = 5
     RightHipPitch = 6
     RightHipRoll = 7
     RightHipYaw = 8
     RightKnee = 9
     RightAnklePitch = 10
+    RightAnkleB = 10
     RightAnkleRoll = 11
+    RightAnkleA = 11
     WaistYaw = 12
     WaistRoll = 13        
     WaistPitch = 14       
