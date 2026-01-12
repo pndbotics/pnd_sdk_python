@@ -158,12 +158,6 @@ class Custom:
             self.low_cmd.motor_cmd[ADAMJointIndex.RightAnkleA].q = R_A_des
             self.low_cmd.motor_cmd[ADAMJointIndex.RightAnkleB].q = R_B_des
             
-            max_WristYaw = np.pi * 30.0 / 180.0
-            L_WristYaw_des = max_WristYaw * np.sin(2.0 * np.pi * t)
-            R_WristYaw_des = max_WristYaw * np.sin(2.0 * np.pi * t)
-            self.low_cmd.motor_cmd[ADAMJointIndex.LeftWristRoll].q = L_WristYaw_des
-            self.low_cmd.motor_cmd[ADAMJointIndex.RightWristRoll].q = R_WristYaw_des
-    
         self.lowcmd_publisher_.Write(self.low_cmd)
 
 if __name__ == '__main__':
