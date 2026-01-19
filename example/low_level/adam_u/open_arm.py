@@ -11,9 +11,9 @@ from pndbotics_sdk_py.idl.pnd_adam.msg.dds_ import HandCmd_
 from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__HandCmd_
 ADAM_U_NUM_MOTOR = 19
 KP_CONFIG = [
-    60.0,  # waistRoll (0)
-    60.0,  # waistPitch (1)
-    60.0,  # waistYaw (2)
+    405.0,  # waistRoll (0)
+    405.0,  # waistPitch (1)
+    205.0,  # waistYaw (2)
     9.0,   # neckYaw (3)
     9.0,   # neckPitch (4)
     18.0,  # shoulderPitch_Left (5)
@@ -34,9 +34,9 @@ KP_CONFIG = [
 
 # Kd 配置数组（对应19个关节）
 KD_CONFIG = [
-    1.0,   # waistRoll (0)
-    1.0,   # waistPitch (1)
-    1.0,   # waistYaw (2)
+    6.1,   # waistRoll (0)
+    6.1,   # waistPitch (1)
+    4.1,   # waistYaw (2)
     0.9,   # neckYaw (3)
     0.9,   # neckPitch (4)
     0.9,   # shoulderPitch_Left (5)

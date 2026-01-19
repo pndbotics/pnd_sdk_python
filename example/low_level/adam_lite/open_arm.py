@@ -13,7 +13,7 @@ ADAM_LITE_NUM_MOTOR = 23
 KP_CONFIG = [
     305.0, 700.0, 405.0, 305.0, 20.0, 0.0,      # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
     305.0, 700.0, 405.0, 305.0, 20.0, 0.0,      # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    205.0, 405.0, 405.0,                        # Waist: waistYaw, waistRoll, waistPitch   
+    405.0, 405.0, 205.0,                        # Waist: waistRoll, waistPitch, waistYaw
     18.0,  # shoulderPitch_Left (15)
     9.0,   # shoulderRoll_Left (16)
     9.0,   # shoulderYaw_Left  (17)
@@ -28,9 +28,9 @@ KP_CONFIG = [
 KD_CONFIG = [
     6.1, 30.0, 6.1, 6.1, 2.5, 0.35,     # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
     6.1, 30.0, 6.1, 6.1, 2.5, 0.35,     # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    4.1,   # waistYaw
     6.1,   # waistRoll 
-    6.1,   # waistPitch          
+    6.1,   # waistPitch   
+    4.1,   # waistYaw
     0.9,   # shoulderPitch_Left 
     0.9,   # shoulderRoll_Left 
     0.9,   # shoulderYaw_Left 

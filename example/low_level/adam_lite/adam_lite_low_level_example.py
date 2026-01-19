@@ -21,7 +21,7 @@ Kp = [
     305.0, 700.0, 405.0, # hip right
     305.0, 20, 0, #knee and ankle
     
-    205.0, 405.0, 405.0,  # waist
+    405.0, 405.0, 205.0, # waist
     
     18.0, 9.0, 9.0, # shoulder left
     9.0,  # arms

@@ -19,7 +19,7 @@ ADAM_SP_NUM_MOTOR = 29
 Kp = [
     305.0, 700.0, 405.0, 305.0, 30.0, 0.0,      # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
     305.0, 700.0, 405.0, 305.0, 30.0, 0.0,      # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    205.0, 405.0, 405.0,                        # Waist: waistYaw, waistRoll, waistPitch
+    405.0, 405.0, 205.0,                        # Waist: waistRoll, waistPitch, waistYaw
     18.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0,         # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
     18.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0          # Right arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
 ]
@@ -27,7 +27,7 @@ Kp = [
 Kd = [
     6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
     6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    4.1, 6.1, 6.1,                       # Waist: waistYaw, waistRoll, waistPitch
+    6.1, 6.1, 4.1,                       # Waist: waistRoll, waistPitch, waistYaw
     0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,   # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
     0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9
 ]
