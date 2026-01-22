@@ -28,6 +28,7 @@ class MotorCmd_(idl.IdlStruct, typename="pnd_adam.msg.dds_.MotorCmd_"):
     tau: types.float32
     kp: types.float32
     kd: types.float32
+    ki: types.float32
     reserve: types.uint32
 
 

@@ -20,10 +20,6 @@ from .channel_config import ChannelConfigAutoDetermine, ChannelConfigHasInterfac
 from ..utils.singleton import Singleton
 from ..utils.bqueue import BQueue
 
-# for debugging
-from ..idl.adam_u.msg.dds_ import LowCmd_
-
-
 """
 " class ChannelReader
 """

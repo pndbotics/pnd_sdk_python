@@ -14,22 +14,24 @@ from pndbotics_sdk_py.idl.default import pnd_adam_msg_dds__HandCmd_
 
 import numpy as np
 
-ADAM_SP_NUM_MOTOR = 29
+ADAM_PRO_NUM_MOTOR = 31
 
 Kp = [
     305.0, 700.0, 405.0, 305.0, 30.0, 0.0,      # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
     305.0, 700.0, 405.0, 305.0, 30.0, 0.0,      # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    405.0, 405.0, 205.0,                        # Waist: waistRoll, waistPitch, waistYaw
+    205.0, 405.0, 405.0,                        # Waist: waistYaw, waistRoll, waistPitch
     18.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0,         # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
-    18.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0          # Right arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
+    18.0, 9.0, 9.0, 9.0, 9.0, 9.0, 9.0,         # Right arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
+    40,40                                       # head: head_pitch, head_yaw
 ]
 
 Kd = [
     6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Left leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
     6.1, 30.0, 6.1, 6.1, 2.25, 0.25,     # Right leg: hipPitch, hipRoll, hipYaw, kneePitch, anklePitch, ankleRoll
-    6.1, 6.1, 4.1,                       # Waist: waistRoll, waistPitch, waistYaw
+    4.1, 6.1, 6.1,                       # Waist: waistYaw, waistRoll, waistPitch
     0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,   # Left arm: shoulderPitch, shoulderRoll, shoulderYaw, elbow, wristYaw, wristPitch, wristRoll
-    0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9
+    0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9,
+    1, 1                                              # head: head_yaw, head_pitch
 ]
 
 class ADAMJointIndex:
@@ -65,8 +67,10 @@ class ADAMJointIndex:
     RightElbow = 25
     RightWristRoll = 26
     RightWristPitch = 27  
-    RightWristYaw = 28 
-    
+    RightWristYaw = 28    
+    HeadYaw = 29   
+    HeadPitch = 30   
+
 
 class Mode:
     PR = 0  # Series Control for Pitch/Roll Joints
@@ -78,8 +82,8 @@ class Custom:
         self.control_dt_ = 0.0025  # [2ms]
         self.duration_ = 3.0    # [3 s]
         self.counter_ = 0
-        self.low_cmd = pnd_adam_msg_dds__LowCmd_(ADAM_SP_NUM_MOTOR)  
-        self.low_state = pnd_adam_msg_dds__LowState_(ADAM_SP_NUM_MOTOR)
+        self.low_cmd = pnd_adam_msg_dds__LowCmd_(ADAM_PRO_NUM_MOTOR)  
+        self.low_state = pnd_adam_msg_dds__LowState_(ADAM_PRO_NUM_MOTOR)
 
         self.hand_cmd = pnd_adam_msg_dds__HandCmd_()
         self.close_hand = np.array([500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500], dtype=int)
@@ -113,7 +117,7 @@ class Custom:
         self.time_ += self.control_dt_
 
         if self.time_ < self.duration_ :
-            for i in range(ADAM_SP_NUM_MOTOR):
+            for i in range(ADAM_PRO_NUM_MOTOR):
                 ratio = np.clip(self.time_ / self.duration_, 0.0, 1.0)
                 self.low_cmd.motor_cmd[i].mode =  1 # 1:Enable, 0:Disable
                 self.low_cmd.motor_cmd[i].tau = 0. 
@@ -139,8 +143,7 @@ class Custom:
             self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnkleRoll].q = L_R_des
             self.low_cmd.motor_cmd[ADAMJointIndex.RightAnklePitch].q = R_P_des
             self.low_cmd.motor_cmd[ADAMJointIndex.RightAnkleRoll].q = R_R_des
-
-        elif self.time_ < self.duration_ * 3:
+        elif self.time_ < self.duration_ * 3 :
             # [Stage 3]: swing ankle using AB mode
             max_A = np.pi * 30.0 / 180.0
             max_B = np.pi * 10.0 / 180.0
@@ -151,7 +154,6 @@ class Custom:
             R_B_des = -max_B * np.sin(2.0 * np.pi * t + np.pi)
 
             self.low_cmd.mode_pr = Mode.AB
-            self.low_cmd.mode_machine = self.mode_machine_
             self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnkleA].q = L_A_des
             self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnkleB].q = L_B_des
             self.low_cmd.motor_cmd[ADAMJointIndex.RightAnkleA].q = R_A_des
@@ -162,9 +164,7 @@ class Custom:
             R_WristYaw_des = max_WristYaw * np.sin(2.0 * np.pi * t)
             self.low_cmd.motor_cmd[ADAMJointIndex.LeftWristRoll].q = L_WristYaw_des
             self.low_cmd.motor_cmd[ADAMJointIndex.RightWristRoll].q = R_WristYaw_des
-            
-        else:
-            for i in range(ADAM_SP_NUM_MOTOR):
+            for i in range(ADAM_PRO_NUM_MOTOR):
                 self.low_cmd.motor_cmd[i].mode =  1 # 1:Enable, 0:Disable
                 self.low_cmd.motor_cmd[i].tau = 0. 
                 self.low_cmd.motor_cmd[i].q = 0
