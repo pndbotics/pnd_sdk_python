@@ -59,10 +59,10 @@ Example programs are located in:
 Ensure robot networking is configured correctly:  
 https://wiki.pndbotics.com
 
-### Low-Level Example
+### Open-arm Example
 ```bash
-cd ~/example/adam_u/low_level
-python3 adam_u_low_level_example.py
+cd ~/pnd_sdk_python/example/low_level/adam_lite
+python3 open_arm.py 
 ```
 
 ## ❓ FAQ
@@ -117,6 +117,7 @@ Feel free to open issues or pull requests.
 
 | Version | Date       | Updates                                                                              |
 | ------- | ---------- | ------------------------------------------------------------------------------------ |
+| v1.2.0  | 2026-01-22 | DDS refactoring version |
 | v1.0.3  | 2025-12-10 | - Add sp and lite </br> - Change wireless remote </br> - Add ddq and motor state|
 | v1.0.2  | 2025-11-20 | Add pd and add hand in example|
 | v1.0.1  | 2025-11-11 | Add hand support|
