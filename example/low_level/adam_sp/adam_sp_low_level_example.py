@@ -151,7 +151,6 @@ class Custom:
             R_B_des = -max_B * np.sin(2.0 * np.pi * t + np.pi)
 
             self.low_cmd.mode_pr = Mode.AB
-            self.low_cmd.mode_machine = self.mode_machine_
             self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnkleA].q = L_A_des
             self.low_cmd.motor_cmd[ADAMJointIndex.LeftAnkleB].q = L_B_des
             self.low_cmd.motor_cmd[ADAMJointIndex.RightAnkleA].q = R_A_des
