@@ -27,5 +27,5 @@ class BatteryData_(idl.IdlStruct, typename="pnd_adam.msg.dds_.BatteryData_"):
     current: types.float32
     power: types.float32
     wh_accumulated: types.float32
-    status: types.string
+    status: str
 
