@@ -5,6 +5,7 @@
 
 """
 
+from ._BatteryData_ import BatteryData_
 from ._HandCmd_ import HandCmd_
 from ._HandState_ import HandState_
 from ._IMUState_ import IMUState_
@@ -12,4 +13,4 @@ from ._LowCmd_ import LowCmd_
 from ._LowState_ import LowState_
 from ._MotorCmd_ import MotorCmd_
 from ._MotorState_ import MotorState_
-__all__ = ["HandCmd_", "HandState_", "IMUState_", "LowCmd_", "LowState_", "MotorCmd_", "MotorState_",]
+__all__ = ["BatteryData_", "HandCmd_", "HandState_", "IMUState_", "LowCmd_", "LowState_", "MotorCmd_", "MotorState_",]

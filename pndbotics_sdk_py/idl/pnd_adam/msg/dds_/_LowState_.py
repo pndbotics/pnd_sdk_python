@@ -27,6 +27,7 @@ class LowState_(idl.IdlStruct, typename="pnd_adam.msg.dds_.LowState_"):
     imu_state: 'pndbotics_sdk_py.idl.pnd_adam.msg.dds_.IMUState_'
     motor_state: types.sequence['pndbotics_sdk_py.idl.pnd_adam.msg.dds_.MotorState_']
     wireless_remote: types.array[types.float32, 19]
+    battery_data: 'pndbotics_sdk_py.idl.pnd_adam.msg.dds_.BatteryData_'
     reserve: types.uint32
 
 
