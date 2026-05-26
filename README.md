@@ -85,7 +85,7 @@ cmake --build . --target install
 Then install **pnd_sdk_python**:
 ```bash
 cd ~/pnd_sdk_python
-export CYCLONEDDS_HOME="~/cyclonedds/install"
+export CYCLONEDDS_HOME=~/cyclonedds/install
 pip3 install -e .
 ```
 
